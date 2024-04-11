@@ -11,7 +11,7 @@ module.exports = {
   plugins: ['react-refresh'],
   rules: {
     'react-refresh/only-export-components': [
-      'warn',
+      'off', // 70. mobx actions - this was "warn" and changed to off so the App doesn't show a warning
       { allowConstantExport: true },
     ],
   },
