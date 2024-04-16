@@ -10,7 +10,7 @@ export default class ActivityStore { // 69. setting up MobX
     selectedActivity: Activity | undefined = undefined;
     editMode: boolean = false; // 71. refactoring - EDITED AGAIN SEE BELOW:(had to add undefined here and for loading so the error went away)
     loading: boolean = false; // EDIT - this was false | undefined but changed to boolean - so it can be changed to true.
-    loadingInitial = true; // 76. to get rid of flickering(but mine was ok before this change)
+    loadingInitial = false; // 76. to get rid of flickering(but mine was ok before this change)
 
     constructor() {
         makeAutoObservable(this) //70. this was makeObservable, changed to auto in this lesson (this is a separate thing to import) which allowed to take out properties that are now inherently observable
@@ -22,14 +22,13 @@ export default class ActivityStore { // 69. setting up MobX
     }
 
     loadActivities = async () => { // 71. refactoring
+        this.setLoadingInitial(true); // 84. have to set this back to true since after we load a single activity, it is set to false. so we don't get the loading indictor when returning to the full activities page
         // this.setLoadingInitial(true); // SOLVING after 71. was missing this line. silly. 76. to solve flickering 
          try {
             const activities = await agent.Activities.list();
                 runInAction(() => { 
                     activities.forEach(activity => {
-                        activity.date = activity.date.split('T')[0]; // 62. [0] takes the first part of what is being split. indexing split by T.
-                        this.activityRegistry.set(activity.id, activity); //76. instead of pushing to array, we add to map object, setting act id as key, and activity as value.
-                        // this.activities.push(activity); // SOLVING after 71. was missing this in this line. silly.
+                        this.setActivity(activity); // 83. using private function now
                     });
                 });
                 this.setLoadingInitial(false);
@@ -40,26 +39,43 @@ export default class ActivityStore { // 69. setting up MobX
         }
     }
 
+    // 83. getting an individual activity. we want to check if activity is inside Registry. if it isn't we need to get it from API
+    loadActivity = async (id: string) => {
+        let activity = this.getActivity(id); // using let so it can be reassigned to activities details in agent.
+        if (activity) {
+            this.selectedActivity = activity;
+            return activity;
+        } else { // if undefined and no activity in registry -
+            this.setLoadingInitial(true); 
+            try {   // try catch bc we will need to go to API
+                activity = await agent.Activities.details(id); // attempt to get activity. if we do get it, we set it in registry.
+                this.setActivity(activity); // after grabbed, set it using private function
+                runInAction(() => this.selectedActivity = activity); // 84. had to add this since we were missing it - we do this above, but we were missing it in the try catch block 85. put this in a runInAction
+                
+                this.setLoadingInitial(false); //
+            } catch (error) {
+                console.log(error); // basic dealing with errors
+                this.setLoadingInitial(false); 
+            }
+        }
+    }
+
+    // 83. below - private method to set an activity. CUT from loadActivities.
+    //
+
+
+    private setActivity = (activity: Activity) => { // 83. getting individual activity - block below was cut from loadActivities
+        activity.date = activity.date.split('T')[0]; // 62. [0] takes the first part of what is being split. indexing split by T.
+        this.activityRegistry.set(activity.id, activity); //76. instead of pushing to array, we add to map object, setting act id as key, and activity as value.
+    }
+
+    private getActivity = (id: string) => { // 83. will either return activity or undefined.
+        return this.activityRegistry.get(id);
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setLoadingInitial = (state: boolean) => {
         this.loadingInitial = state;
-    }
-
-    selectActivity = (id: string) => { // 73. select an activity with mobx
-        this.selectedActivity = this.activityRegistry.get(id); // 76. map obj - this was a find method in array to get id if its exists - changed to get method in map obj.
-    }
-
-    cancelSelectedActivity = () => { // 73.
-        this.selectedActivity = undefined;
-    }
-
-    openForm = (id?: string) => { // 73. 
-        id ? this.selectActivity(id) : this.cancelSelectedActivity();
-        this.editMode = true;
-    }
-
-    closeForm = () => {
-        this.editMode = false;
     }
 
     createActivity = async (activity: Activity) => {
@@ -107,7 +123,7 @@ export default class ActivityStore { // 69. setting up MobX
             runInAction(() => {
                 // this.activities = [...this.activities.filter(a => a.id !== id)]; // 75. deletes activity 76. map obj update instead of array
                 this.activityRegistry.delete(id); // 76. map instead of array - id only when deleting.
-                if (this.selectedActivity?.id === id) this.cancelSelectedActivity(); // 75. cancel viewing on right hand side after an activity has been deleted
+                // if (this.selectedActivity?.id === id) this.cancelSelectedActivity(); // 75. cancel viewing on right hand side after an activity has been deleted // 83. 4x functions deleted now so not using selectedActivity
                 this.loading = false;
             })
         } catch (error) {
