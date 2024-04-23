@@ -21,6 +21,16 @@ export default class ActivityStore { // 69. setting up MobX
         Date.parse(a.date) - Date.parse(b.date));
     }
 
+    get groupedActivities() {
+        return Object.entries(
+            this.activitiesByDate.reduce((activities, activity) => {
+                const date = activity.date;
+                activities[date] = activities[date] ? [...activities[date], activity] : [activity];
+                return activities;
+            }, {} as {[key: string]: Activity[]})
+        )
+    }
+
     loadActivities = async () => { // 71. refactoring
         this.setLoadingInitial(true); // 84. have to set this back to true since after we load a single activity, it is set to false. so we don't get the loading indictor when returning to the full activities page
         // this.setLoadingInitial(true); // SOLVING after 71. was missing this line. silly. 76. to solve flickering 
