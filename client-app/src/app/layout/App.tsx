@@ -4,6 +4,7 @@ import NavBar from './NavBar';
 import { observer } from 'mobx-react-lite';
 import { Outlet, useLocation } from 'react-router-dom';
 import HomePage from '../../features/home/HomePage';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   const location = useLocation(); // 88. this will give us the URL - where the user has gone to
@@ -15,6 +16,7 @@ function App() {
 
   return (
     <>
+    <ToastContainer position='bottom-right' hideProgressBar theme='colored' /> 
       {location.pathname === '/' ? <HomePage /> : (
         <>
           <NavBar />
@@ -30,3 +32,4 @@ function App() {
 }
 
 export default observer(App); // mobX actions - making the App component an observer
+// 108. prepping error handling in client app - adding toast container at top of return statement. 
