@@ -2,6 +2,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { Activity } from "../models/activity";
 import agent from "../api/agent";
 import {v4 as uuid} from 'uuid';
+import { format } from "date-fns";
 
 export default class ActivityStore { // 69. setting up MobX
     // activities: Activity[] = []; 76. no longer needed - array. using map obj instead
@@ -18,18 +19,23 @@ export default class ActivityStore { // 69. setting up MobX
 
     get activitiesByDate() { //76. using map obj. uses map obj method.. now we have a computed property that will sort the activities in date order
         return Array.from(this.activityRegistry.values()).sort((a, b) => 
-        Date.parse(a.date) - Date.parse(b.date));
+        a.date!.getTime() - b.date!.getTime());
     }
+
+    //123. date strategy - activitiesByDate - changed a.date - b.date from parse to getTime method we have available on Date objects.
 
     get groupedActivities() {
         return Object.entries(
             this.activitiesByDate.reduce((activities, activity) => {
-                const date = activity.date;
+                const date = format(activity.date!, "dd MMM yyyy");
                 activities[date] = activities[date] ? [...activities[date], activity] : [activity];
                 return activities;
             }, {} as {[key: string]: Activity[]})
         )
     }
+
+    //123. date strategy - we want groupedActivities to stay a string. toISOstring() and split by T
+    //124. date-fns : replaced above change with the date-fns formatting anyway. 
 
     loadActivities = async () => { // 71. refactoring
         this.setLoadingInitial(true); // 84. have to set this back to true since after we load a single activity, it is set to false. so we don't get the loading indictor when returning to the full activities page
@@ -75,7 +81,7 @@ export default class ActivityStore { // 69. setting up MobX
 
 
     private setActivity = (activity: Activity) => { // 83. getting individual activity - block below was cut from loadActivities
-        activity.date = activity.date.split('T')[0]; // 62. [0] takes the first part of what is being split. indexing split by T.
+        activity.date = new Date(activity.date!) //123. date strategy - date format changed now so - no longer a string. // 62. [0] takes the first part of what is being split. indexing split by T.
         this.activityRegistry.set(activity.id, activity); //76. instead of pushing to array, we add to map object, setting act id as key, and activity as value.
     }
 
