@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using Application.Activities;
 using Domain;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -16,6 +17,7 @@ namespace API.Controllers
         {
             return HandleResult(await Mediator.Send(new List.Query())); // 105. instead of returning directly, we call the function and pass in the request to MediatR.
         }
+
 
         [HttpGet("{id}")] //api/activities/guid-whateveritis
         public async Task<IActionResult> GetActivity(Guid id) // 104. error handling - changed from ActionResult - activity, to IActionResult. 
