@@ -3,6 +3,7 @@ import { Activity } from "../models/activity";
 import { toast } from "react-toastify";
 import { router } from "../router/Routes";
 import { store } from "../stores/store";
+import { User, UserFormValues } from "../models/user";
 
 const sleep = (delay: number) => { // 63. adding loading indicators. 
     return new Promise((resolve) => {
@@ -13,6 +14,14 @@ const sleep = (delay: number) => { // 63. adding loading indicators.
 axios.defaults.baseURL = 'http://localhost:5000/api'
 
 const responseBody = <T> (response: AxiosResponse<T>) => response.data; // 61. makes life a bit easier - this returns response.data.
+
+axios.interceptors.request.use(config => {
+    const token = store.commonStore.token;
+    if (token && config.headers) config.headers.Authorization = `Bearer ${token}`;
+    return config;
+})
+
+// 151. sending the token up with the request. added request interceptor from axios.
 
 axios.interceptors.response.use(async response => { // 63. adding loading indicators. 
     await sleep(1000);
@@ -70,9 +79,19 @@ const Activities = { // 61. set up obj to store our requests for our activities
     delete: (id: string) => axios.delete<void>(`/activities/${id}`) //. 64. posting data to the server
 }
 
-const agent = {
-    Activities
+const Account = {
+    current: () => requests.get<User>('/account'),
+    login: (user: UserFormValues) => requests.post<User>('/account/login', user),
+    register: (user: UserFormValues) => requests.post<User>('/account/register', user)
 }
+//145. created new const Account that will get the current user, login and register
+
+const agent = {
+    Activities,
+    Account
+}
+
+//
 
 export default agent;
 

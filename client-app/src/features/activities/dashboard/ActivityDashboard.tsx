@@ -15,7 +15,7 @@ export default observer(function ActivityDashboard() {
         if (activityRegistry.size <= 1) loadActivities(); // 89. adding checking to see if we already have activities inside the store
     }, [loadActivities, activityRegistry.size])
   
-    if (activityStore.loadingInitial) return <LoadingComponent content='Loading app' /> // 63. adding loading indicators
+    if (activityStore.loadingInitial) return <LoadingComponent content='Loading activities..' /> // 63. adding loading indicators
   
 
     return (

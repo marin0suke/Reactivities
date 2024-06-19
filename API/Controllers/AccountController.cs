@@ -47,12 +47,14 @@ namespace API.Controllers
         {
             if (await _userManager.Users.AnyAsync(x => x.UserName == registerDto.Username))
             {
-                return BadRequest("Username is already taken");
+                ModelState.AddModelError("username", "Username taken"); // 154. 
+                return ValidationProblem(); // 154. instead of return bad req. 
             }
 
             if (await _userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
             {
-                return BadRequest("Email is already taken");
+                ModelState.AddModelError("email", "Email taken"); // 154.
+                return ValidationProblem(); // 154.
             }
 
             var user = new AppUser
@@ -98,3 +100,7 @@ namespace API.Controllers
 // 138. creating an auth policy - added AllowAnonymous attribute at the top. which will allow login endpoint to not require authentication.
 // 139. registering new users - adding rego capabilities and testing. 
 // 141. added createuserobj and put it at bottom. created new httpget GetCurrentUser. replaced new UserDto with createuserobj inside register and login methods
+
+// 154. handling validation errors in the registration form - 
+// currently getting errors.map is not a function error page when we try to register with taken username or taken email. 
+// to get past this - using ModelState object with addModelError method. return this obj when Badrequest. 

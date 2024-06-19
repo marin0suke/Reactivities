@@ -1,15 +1,11 @@
-using System.Runtime.CompilerServices;
 using Application.Activities;
 using Domain;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Persistence;
 
-namespace API.Controllers 
+namespace API.Controllers
 {
-
+    [AllowAnonymous]
     public class ActivitiesController : BaseApiController
     {
         [HttpGet] //api/activities
@@ -46,3 +42,5 @@ namespace API.Controllers
         }
     }
 }
+
+// 144. creating a login form - added allowanonymous at top so we can access activities (before this we turned on all authentication)
