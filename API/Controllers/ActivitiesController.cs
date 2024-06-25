@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [AllowAnonymous]
+    // [AllowAnonymous] // 160. testing the create activity. 
     public class ActivitiesController : BaseApiController
     {
         [HttpGet] //api/activities
@@ -27,6 +27,7 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new Create.Command {Activity = activity})); // 105. added HandleResult
         }
 
+        [Authorize(Policy = "IsActivityHost")] // 165. adding attributes to end point to add the policies. 
         [HttpPut("{id}")]
         public async Task<IActionResult> EditActivity(Guid id, Activity activity)
         {
@@ -39,6 +40,12 @@ namespace API.Controllers
         {
             return HandleResult(await Mediator.Send(new Delete.Command{Id = id})); // 106. refactor with HandleResult
 
+        }
+
+        [HttpPost("{id}/attend")] // 164. adding new end point for adding attendees to activity. 
+        public async Task<IActionResult> Attend(Guid id)
+        {
+            return HandleResult(await Mediator.Send(new UpdateAttendance.Command{Id = id}));
         }
     }
 }

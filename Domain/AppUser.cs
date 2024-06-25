@@ -10,9 +10,11 @@ namespace Domain
     {
         public string DisplayName { get; set; }
         public string Bio { get; set; }
+        public ICollection<ActivityAttendee> Activities { get; set; }
     }
 }
 
 
 // 128. adding a user entity. 
 // 129. 
+// 157. config relationships - changed ICollection specification to the new join table. 

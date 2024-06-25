@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using API.Services;
 using Domain;
+using Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Persistence;
 
@@ -38,7 +41,14 @@ namespace API.Extensions
                 });
 
 
-
+            services.AddAuthorization(opt => 
+            {
+                opt.AddPolicy("IsActivityHost", policy => 
+                {
+                    policy.Requirements.Add(new IsHostRequirement());
+                });
+            }); // 165. configure host auth with identity.
+            services.AddTransient<IAuthorizationHandler, IsHostRequirementHandler>(); // 165. Transient since we only need this to work while the method is running.
             services.AddScoped<TokenService>();
 
             return services;
