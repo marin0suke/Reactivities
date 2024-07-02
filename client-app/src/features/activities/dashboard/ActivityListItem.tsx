@@ -1,7 +1,8 @@
-import { Button, Icon, Item, Segment } from "semantic-ui-react";
+import { Button, Icon, Item, Label, Segment } from "semantic-ui-react";
 import { Activity } from "../../../app/models/activity";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
+import ActivityListItemAttendee from "./ActivityListItemAttendee";
 
 interface Props {
     activity: Activity
@@ -18,14 +19,31 @@ export default function ActivityListItem({ activity }: Props) {
     return (
         <Segment.Group>
             <Segment>
+                {activity.isCancelled && // 175. adding a cancel activity method.
+                    <Label attached="top" color="red" content="Cancelled" style={{textAlign: "center"}} />
+                }
                 <Item.Group>
                     <Item>
-                        <Item.Image size='tiny' circular src='/assets/user.png' />
+                        <Item.Image style={{marginBottom: 5}} size='tiny' circular src='/assets/user.png' /> 
                         <Item.Content>
                             <Item.Header as={Link} to={`/activities/${activity.id}`}>
                                 {activity.title}
                             </Item.Header>
-                            <Item.Description>Hosted By Bob</Item.Description>
+                            <Item.Description>Hosted By {activity.host?.displayName}</Item.Description> 
+                            {activity.isHost && (
+                                <Item.Description>
+                                    <Label basic color="orange">
+                                        You are hosting this activity
+                                    </Label>
+                                </Item.Description>
+                            )}
+                            {activity.isGoing && !activity.isHost && (
+                                <Item.Description>
+                                    <Label basic color="green">
+                                        You are going to this activity
+                                    </Label>
+                                </Item.Description>
+                            )}
                         </Item.Content>
                     </Item>
                 </Item.Group>
@@ -37,7 +55,7 @@ export default function ActivityListItem({ activity }: Props) {
                 </span>
             </Segment>
             <Segment secondary>
-                Attendees go here
+                <ActivityListItemAttendee attendees={activity.attendees!}/> 
             </Segment>
             <Segment clearing>
                 <span>{activity.description}</span>
@@ -58,3 +76,8 @@ export default function ActivityListItem({ activity }: Props) {
 // going from what we have now to segment with icons etc on each card for each activity
 
 //124. date-fns formatting date so it displays as a string
+
+// 170. adding the attendees component - created and added new component to show attendees (ActivityListItemAttendee)
+// 172. adding expression inside hosted by element - to pull in host displayname. 
+// also added conditionals for isGoing and isHost. 
+// 175. added a marginBottom of 5 to the Item.Image so the bottom wasn't cut off. 

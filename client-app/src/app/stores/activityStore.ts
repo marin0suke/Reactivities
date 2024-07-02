@@ -1,8 +1,10 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { Activity } from "../models/activity";
+import { Activity, ActivityFormValues } from "../models/activity";
 import agent from "../api/agent";
 import {v4 as uuid} from 'uuid';
 import { format } from "date-fns";
+import { store } from "./store";
+import { Profile } from "../models/profile";
 
 export default class ActivityStore { // 69. setting up MobX
     // activities: Activity[] = []; 76. no longer needed - array. using map obj instead
@@ -81,6 +83,14 @@ export default class ActivityStore { // 69. setting up MobX
 
 
     private setActivity = (activity: Activity) => { // 83. getting individual activity - block below was cut from loadActivities
+        const user = store.userStore.user; // 172.
+        if (user) {
+            activity.isGoing = activity.attendees!.some( // 172.
+                a => a.username === user.username
+            )
+            activity.isHost = activity.hostUsername === user.username; // 172. 
+            activity.host = activity.attendees!.find(x => x.username === activity.hostUsername); // 172.
+        }
         activity.date = new Date(activity.date!) //123. date strategy - date format changed now so - no longer a string. // 62. [0] takes the first part of what is being split. indexing split by T.
         this.activityRegistry.set(activity.id, activity); //76. instead of pushing to array, we add to map object, setting act id as key, and activity as value.
     }
@@ -94,43 +104,41 @@ export default class ActivityStore { // 69. setting up MobX
         this.loadingInitial = state;
     }
 
-    createActivity = async (activity: Activity) => {
-        this.loading = true;
-        activity.id = uuid();
+    createActivity = async (activity: ActivityFormValues) => {
+        const user = store.userStore.user; // 174.
+        const attendee = new Profile(user!); // 174. 
+        activity.id = uuid(); // 174. this line of code isn't in neils vid. not sure why. 
         try {
             await agent.Activities.create(activity)
+            const newActivity = new Activity(activity);
+            newActivity.hostUsername = user!.username;
+            newActivity.attendees = [attendee];
+            this.setActivity(newActivity);
             runInAction(() => {
-                this.activityRegistry.set(activity.id, activity); // 76. map obj - set instead of push to array
-                this.selectedActivity = activity;
-                this.editMode = false;
-                this.loading = false;
+                this.selectedActivity = newActivity;
             })
         } catch (error) {
             console.log(error);
-            runInAction(() => {
-                this.loading = false;
-            })
         }
     }
 
-    updateActivity = async (activity: Activity) => { // 74. create activity using mobx
-        this.loading = true;
+    // 174. updating create and edit - removed loading indicators, including one in runInAction. removed editmode. will use Formik isSubmitting instead of loading flag.
+
+    updateActivity = async (activity: ActivityFormValues) => { // 74. create activity using mobx
         try {   
             await agent.Activities.update(activity);
             runInAction(() => {
-                // this.activities = [...this.activities.filter(a => a.id !== activity.id), activity]; 76. map obj instead of array
-                this.activityRegistry.set(activity.id, activity); //76. map obj instead of array.
-                this.selectedActivity = activity;
-                this.editMode = false;
-                this.loading = false;
+                if (activity.id) {
+                    const updatedActivity = {...this.getActivity(activity.id), ...activity}
+                    this.activityRegistry.set(activity.id, updatedActivity as Activity);
+                    this.selectedActivity = updatedActivity as Activity;
+                }
             })
         } catch (error) {
             console.log(error); 
-            runInAction(() => {
-                this.loading = false;
-            })
         }
     }
+    // 174. removed loading indicators, removed what we did in vid 76. 
 
     deleteActivity = async (id: string) => { // 75. delete activity using mobx
         this.loading = true;
@@ -147,6 +155,45 @@ export default class ActivityStore { // 69. setting up MobX
             runInAction(() => {
                 this.loading = false;
             })
+        }
+    }
+
+    updateAttendance = async () => {
+        const user = store.userStore.user;
+        this.loading = true;
+        try {
+            await agent.Activities.attend(this.selectedActivity!.id); // 173. override default activity. we know user is inside activity. if they are updating their attendance.
+            runInAction(() => {
+                if (this.selectedActivity?.isGoing) { // 173. if they've cancelled, remove user from list.
+                    this.selectedActivity.attendees = 
+                        this.selectedActivity.attendees?.filter(a => a.username != user?.username); // filters out current user out of attendees list.
+                    this.selectedActivity.isGoing = false;
+                } else { // 173. if they're joing, add user to list.
+                    const attendee = new Profile(user!);
+                    this.selectedActivity?.attendees?.push(attendee);
+                    this.selectedActivity!.isGoing = true;
+                }
+                this.activityRegistry.set(this.selectedActivity!.id, this.selectedActivity!) // take opportunity to set activity object at the same time.
+            })
+        } catch (error) {
+            console.log(error);
+        } finally {
+            runInAction(() => this.loading = false);
+        }
+    }
+
+    cancelActivityToggle = async () => { // 175. adding cancel activity method.
+        this.loading = true;
+        try {
+            await agent.Activities.attend(this.selectedActivity!.id);
+            runInAction(() => {
+                this.selectedActivity!.isCancelled = !this.selectedActivity!.isCancelled;
+                this.activityRegistry.set(this.selectedActivity!.id, this.selectedActivity!);
+            })
+        } catch (error) {
+            console.log(error);
+        } finally {
+            runInAction(() => this.loading = false);
         }
     }
 

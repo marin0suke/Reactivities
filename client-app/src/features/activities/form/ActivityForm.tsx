@@ -4,7 +4,7 @@ import { useStore } from "../../../app/stores/store";
 import { v4 as uuid } from 'uuid';
 import { observer } from "mobx-react-lite";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Activity } from "../../../app/models/activity";
+import { ActivityFormValues } from "../../../app/models/activity";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { Formik, Form } from "formik";
 import * as Yup from 'yup';
@@ -17,19 +17,11 @@ import MyDateInput from "../../../app/common/form/MyDateInput";
 export default observer(function ActivityForm() {
     const { activityStore } = useStore();
     const { createActivity, updateActivity,
-        loading, loadActivity, loadingInitial } = activityStore; // 83. removed closeForm bc when we cancel now, will be routing somewhere else
+        loadActivity, loadingInitial } = activityStore; // 83. removed closeForm bc when we cancel now, will be routing somewhere else
     const { id } = useParams();  // 85. to get access to route param - so we can get id from route parameters.
     const navigate = useNavigate();
 
-    const [activity, setActivity] = useState<Activity>({
-        id: '',
-        title: '',
-        category: '',
-        description: '',
-        date: null,
-        city: '',
-        venue: ''
-    });
+    const [activity, setActivity] = useState<ActivityFormValues>(new ActivityFormValues()); // 174. changed to activityFormValues that we created in Activity.ts. 
 
     const validationSchema = Yup.object({
         title: Yup.string().required("The activity title is required"),
@@ -42,10 +34,10 @@ export default observer(function ActivityForm() {
     })
 
     useEffect(() => {
-        if (id) loadActivity(id).then(activity => setActivity(activity!)); // 85. ! to turn off TS functionality that was spitting out an error - about the type of the value that is being returned.\
+        if (id) loadActivity(id).then(activity => setActivity(new ActivityFormValues(activity))); // 174. updated to use ActivityFormValues to return activity and check act has the values inside the form itself. // 85. ! to turn off TS functionality that was spitting out an error - about the type of the value that is being returned.\
     }, [id, loadActivity]);
 
-    function handleFormSubmit(activity: Activity) {
+    function handleFormSubmit(activity: ActivityFormValues) { // 174. updated to ActivityFormValues.
         if (!activity.id) { //87. if we don't have an id
             activity.id = uuid(); // 87. then we will create one
             createActivity(activity).then(() => navigate(`/activities/${activity.id}`))
@@ -85,7 +77,7 @@ export default observer(function ActivityForm() {
                         <MyTextInput placeholder='Venue' name='venue' />
                         <Button 
                             disabled={isSubmitting || !dirty || !isValid}
-                            loading={loading} floated='right' 
+                            loading={isSubmitting} floated='right'  // 174. changed from loading to isSubmitting.
                             positive type='submit' content='Submit' />
                         <Button as={Link} to='/activities' floated='right' type='button' content='Cancel' /> {/*add a link here so when we click cancel, we simply link back to the activities page.*/}
                     </Form>

@@ -1,5 +1,5 @@
-import axios, { Axios, AxiosError, AxiosResponse } from "axios"; // 61. setting up axios
-import { Activity } from "../models/activity";
+import axios, { AxiosError, AxiosResponse } from "axios"; // 61. setting up axios
+import { Activity, ActivityFormValues } from "../models/activity";
 import { toast } from "react-toastify";
 import { router } from "../router/Routes";
 import { store } from "../stores/store";
@@ -74,9 +74,10 @@ const requests = { // 61. obj to store requests from axios. 62. type safety sinc
 const Activities = { // 61. set up obj to store our requests for our activities
     list: () => requests.get<Activity[]>('/activities'), // 61. first a request to list the activity. pass in the URL of the activity ('/') will be the baseURL + whatever we put inside the request. in this case, just activities.
     details: (id: string) => requests.get<Activity>(`/activities/${id}`),
-    create: (activity: Activity) => axios.post<void>('/activities', activity),
-    update: (activity: Activity) => axios.put<void>(`/activities/${activity.id}`, activity),
-    delete: (id: string) => axios.delete<void>(`/activities/${id}`) //. 64. posting data to the server
+    create: (activity: ActivityFormValues) => requests.post<void>('/activities', activity), // 174. updated to ActivityFormValues.
+    update: (activity: ActivityFormValues) => requests.put<void>(`/activities/${activity.id}`, activity), // 174. updated to ActivityFormValues.
+    delete: (id: string) => requests.del<void>(`/activities/${id}`), //. 64. posting data to the server
+    attend: (id: string) => requests.post<void>(`/activities/${id}/attend`, {}) // 173. adding the store methods to attend.
 }
 
 const Account = {

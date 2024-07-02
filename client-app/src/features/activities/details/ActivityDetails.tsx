@@ -32,7 +32,7 @@ export default observer(function ActivityDetails() {
                 <ActivityDetailedChat />
             </Grid.Column>
             <Grid.Column width={6}>
-                <ActivityDetailedSidebar />
+                <ActivityDetailedSidebar activity={activity}/>
             </Grid.Column>
        </Grid>
     )
@@ -41,3 +41,5 @@ export default observer(function ActivityDetails() {
 // 83. also removed onClick from both buttons - will be replaced with something else
 // 85. added Links from react router to both buttons, first one taking the id of activity
 // 95. deleted the card component and replaced with Grid and the new components.
+// 170. updating details view component - adding attendees props to activityDetailedSidebar. 
+// 172. conditional rendering of buttons - changed prop passed to ActivityDetailedSidebar to activity instead of attendees.
