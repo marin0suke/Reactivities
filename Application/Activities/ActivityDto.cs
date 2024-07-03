@@ -17,7 +17,7 @@ namespace Application.Activities
         public string Venue { get; set; }
         public string HostUsername { get; set; } // 162. returning the profile alone won't give us host details. so we add this.
         public bool IsCancelled { get; set; } // 164. adding the attendance handler. giving host ability to cancel event.
-        public ICollection<Profile> Attendees { get; set; } // 162. we grab the profile class.
+        public ICollection<AttendeeDto> Attendees { get; set; } // 189. replaced Profile with AttendeeDto in Attendees ICollection.  // 162. we grab the profile class.
     }
 }
 

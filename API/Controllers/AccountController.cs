@@ -26,7 +26,8 @@ namespace API.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
         {
-            var user = await _userManager.FindByEmailAsync(loginDto.Email);
+            var user = await _userManager.Users.Include(p => p.Photos)
+                .FirstOrDefaultAsync(x => x.Email == loginDto.Email); // 189. can't use eager loading if using findby method. changed to Users.Include to get photos.
 
             if (user == null) return Unauthorized();
 
@@ -78,7 +79,8 @@ namespace API.Controllers
         [HttpGet]
         public async Task<ActionResult<UserDto>> GetCurrentUser() 
         {
-            var user = await _userManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
+            var user = await _userManager.Users.Include(p => p.Photos)
+                .FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email)); // 189. adding Users.Include and FirstOrDefaultAsync to get photos for current user.
 
             return CreateUserObject(user);
         }
@@ -88,7 +90,7 @@ namespace API.Controllers
             return new UserDto
             {
                 DisplayName = user.DisplayName,
-                Image = null,
+                Image = user?.Photos?.FirstOrDefault(x => x.IsMain)?.Url, // 189. to return user image when logged in. was set to null initially. 
                 Token = _tokenService.CreateToken(user),
                 Username = user.UserName
             };

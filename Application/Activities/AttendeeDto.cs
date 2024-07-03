@@ -2,21 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Domain;
 
-namespace Application.Profiles
+namespace Application.Activities
 {
-    public class Profile
+    public class AttendeeDto
     {
         public string Username { get; set; }
         public string DisplayName { get; set; }
         public string Bio { get; set; }
         public string Image { get; set; }
-
-        public ICollection<Photo> Photos { get; set; }
-
     }
 }
 
-// 162. shaping the related data. 
-// 187. returning user profiles. added ICollection prop for Photos. 
+// 189. returning an attendee dto. (copy pasted props from Profile.cs in profiles)

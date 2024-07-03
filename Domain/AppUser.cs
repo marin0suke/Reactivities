@@ -11,6 +11,7 @@ namespace Domain
         public string DisplayName { get; set; }
         public string Bio { get; set; }
         public ICollection<ActivityAttendee> Activities { get; set; }
+        public ICollection<Photo> Photos { get; set; }
     }
 }
 
@@ -18,3 +19,4 @@ namespace Domain
 // 128. adding a user entity. 
 // 129. 
 // 157. config relationships - changed ICollection specification to the new join table. 
+// 182. adding another prop - ICollection<Photo> Photos. 
