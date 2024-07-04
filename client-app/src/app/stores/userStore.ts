@@ -30,6 +30,10 @@ export default class UserStore {
         router.navigate("/activities");
         store.modalStore.closeModal(); 
     }
+
+    setImage = (image: string) => { // 203. add upload photo method.
+        if (this.user) this.user.image = image; // helper method to set an image for the user. user could be null so check for user.
+    }
     
     // 153. adding rego form - adding method here for functionality.
 

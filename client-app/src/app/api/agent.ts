@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { router } from "../router/Routes";
 import { store } from "../stores/store";
 import { User, UserFormValues } from "../models/user";
+import { Photo, Profile } from "../models/profile";
 
 const sleep = (delay: number) => { // 63. adding loading indicators. 
     return new Promise((resolve) => {
@@ -87,9 +88,26 @@ const Account = {
 }
 //145. created new const Account that will get the current user, login and register
 
+const Profiles = {
+    get: (username: string) => requests.get<Profile>(`/profiles/${username}`),
+    uploadPhoto: (file: Blob) => { // 203. method to upload photo - send to api.
+        const formData = new FormData();
+        formData.append('File', file); // 'File' must match - the name of the property in the API. 
+        return axios.post<Photo>('photos', formData, { // added <Photo> to post. now in profileStore in upload method, photo will be type Photo. 
+            headers: {'Content-Type': 'multipart/form-data'}
+        })
+    },
+    setMainPhoto: (id: string) => requests.post(`/photos/${id}/setMain`, {}), // 204. method to set main photo.
+    deletePhoto: (id: string) => requests.del(`/photos/${id}`) // 204. method to delete photo. 
+
+}
+
+// 195. create obj that we can use to go and get user profile. 
+
 const agent = {
     Activities,
-    Account
+    Account,
+    Profiles // 195. added so profileStore can get it via agent.
 }
 
 //

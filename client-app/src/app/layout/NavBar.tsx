@@ -28,7 +28,7 @@ export default observer(function NavBar() {
                     <Image src={user?.image || '/assets/user.png'} avatar spaced='right' />
                     <Dropdown pointing='top left' text={user?.displayName}>
                         <Dropdown.Menu>
-                            <Dropdown.Item as={Link} to={`/profile/${user?.username}`} text='My Profile' icon='user' />
+                            <Dropdown.Item as={Link} to={`/profiles/${user?.username}`} text='My Profile' icon='user' />
                             <Dropdown.Item onClick={logout} text='Logout' icon="power" />
                         </Dropdown.Menu>
                     </Dropdown>
@@ -41,4 +41,6 @@ export default observer(function NavBar() {
 // 108. prep for setting up error handling in client app (added navlink to errors)
 // 149. need to access userStore again. destructure by specifying what we need from userStore - user object and logout method (inside curlies)
 // then add another Menu Item under create activity button - add user image, add dropdown menu with links to profile and to logout. 
-// make sure this function is also an observer. 
+// make sure this function is also an observer.
+
+// 192. changed profile to profiles to match routie for dropdown menu nav to profilepage.

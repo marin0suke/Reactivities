@@ -24,12 +24,12 @@ export default function ActivityListItem({ activity }: Props) {
                 }
                 <Item.Group>
                     <Item>
-                        <Item.Image style={{marginBottom: 5}} size='tiny' circular src='/assets/user.png' /> 
+                        <Item.Image style={{marginBottom: 5}} size='tiny' circular src={activity.host?.image || '/assets/user.png'} /> 
                         <Item.Content>
                             <Item.Header as={Link} to={`/activities/${activity.id}`}>
                                 {activity.title}
                             </Item.Header>
-                            <Item.Description>Hosted By {activity.host?.displayName}</Item.Description> 
+                            <Item.Description>Hosted By <Link to={`/profiles/${activity.hostUsername}`}>{activity.host?.displayName}</Link></Item.Description> 
                             {activity.isHost && (
                                 <Item.Description>
                                     <Label basic color="orange">
@@ -81,3 +81,5 @@ export default function ActivityListItem({ activity }: Props) {
 // 172. adding expression inside hosted by element - to pull in host displayname. 
 // also added conditionals for isGoing and isHost. 
 // 175. added a marginBottom of 5 to the Item.Image so the bottom wasn't cut off. 
+
+// 192. added activity.host?.image to the Item.Image for this component (list item for each activity in the activities page).
