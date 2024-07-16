@@ -20,12 +20,12 @@ namespace Persistence
 
             builder.Entity<ActivityAttendee>(x => x.HasKey(aa => new {aa.AppUserId, aa.ActivityId})); // 157. this wil form the primary key in our join table.
 
-            builder.Entity<ActivityAttendee>()
+            builder.Entity<ActivityAttendee>() 
                 .HasOne(u => u.AppUser)
                 .WithMany(a => a.Activities)
                 .HasForeignKey(aa => aa.AppUserId);
 
-            builder.Entity<ActivityAttendee>()
+            builder.Entity<ActivityAttendee>() 
                 .HasOne(u => u.Activity)
                 .WithMany(a => a.Attendees)
                 .HasForeignKey(aa => aa.ActivityId);

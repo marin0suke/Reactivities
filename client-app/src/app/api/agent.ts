@@ -88,7 +88,7 @@ const Account = {
 }
 //145. created new const Account that will get the current user, login and register
 
-const Profiles = {
+const Profiles = { // 207. edit handler challenge.  
     get: (username: string) => requests.get<Profile>(`/profiles/${username}`),
     uploadPhoto: (file: Blob) => { // 203. method to upload photo - send to api.
         const formData = new FormData();
@@ -98,8 +98,8 @@ const Profiles = {
         })
     },
     setMainPhoto: (id: string) => requests.post(`/photos/${id}/setMain`, {}), // 204. method to set main photo.
-    deletePhoto: (id: string) => requests.del(`/photos/${id}`) // 204. method to delete photo. 
-
+    deletePhoto: (id: string) => requests.del(`/photos/${id}`), // 204. method to delete photo. 
+    updateProfile: (profile: Partial<Profile>) => requests.put(`/profiles`, profile) // 207. challenge. new request to edit profile. partial bc only displayname and bio.
 }
 
 // 195. create obj that we can use to go and get user profile. 

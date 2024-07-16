@@ -89,6 +89,23 @@ export default class ProfileStore {
             console.log(error);
         }
     }
+
+    updateProfile = async (profile: Partial<Profile>) => { // Section 18 challenge.
+        this.loading = true; // sets loading indicator on.
+        try {
+            await agent.Profiles.updateProfile(profile); // performs async operation updateProfile. method in the service layer that handles the HTTP request to update the profile on the server.
+            runInAction(() => { // wraps changes to observables in batches. then notifies the observers once the action in complete.
+                if (profile.displayName && profile.displayName !== store.userStore.user?.displayName) { // checks that displayName in profile update is different from the one already in the userStore.
+                    store.userStore.setDisplayName(profile.displayName); // if cond is met then changes the displayName in the userStore.
+                }
+                    this.profile = {...this.profile, ...profile as Profile} // updates the local profile obj. merges existing and new profile properties. TS assertion used as Profile - to treat profile as a full Profile obj.
+                    this.loading = false; // turning the loading flag off.
+            })
+        } catch (error) {
+            console.log(error);
+            runInAction(() => this.loading = false); // standard error handling for now.
+        }
+    }
 }
 
 // 195. 

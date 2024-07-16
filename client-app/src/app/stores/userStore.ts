@@ -52,6 +52,11 @@ export default class UserStore {
             console.log(error);
         }
     }
+
+    setDisplayName = (name: string) => { // 207. challenge. helper method to edit displayname.
+        if (this.user) this.user.displayName = name; 
+    }
+
 }
 
 //145. creating the interfaces and methods. new file! 
