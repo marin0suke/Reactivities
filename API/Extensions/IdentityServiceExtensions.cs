@@ -38,7 +38,22 @@ namespace API.Extensions
                         ValidateIssuer = false, 
                         ValidateAudience = false
                     };
+                    opt.Events = new JwtBearerEvents // 214. authenticating to signalr
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"]; // spelling imp. client side will pass token in query string. needs to be this.
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/chat")))
+                            {
+                                context.Token = accessToken; // now will have access to this token inside our hub context.
+                            }
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
+
+                // 214. adding signalR auth: will allow us to get token from our query string that we send up with our signal. match it to the end points, and add to context if matches. essentially auths in thie way.
 
 
             services.AddAuthorization(opt => 

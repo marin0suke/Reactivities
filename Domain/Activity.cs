@@ -1,3 +1,5 @@
+using System.Transactions;
+
 namespace Domain
 {
     public class Activity
@@ -13,6 +15,8 @@ namespace Domain
         public string Venue { get; set; }
         public bool IsCancelled { get; set; } // 164. adding the attendance handler. giving host ability to cancel event.
         public ICollection<ActivityAttendee> Attendees { get; set; } = new List<ActivityAttendee>();
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>(); // 209. adding comment entity.
+        
     }
 }
 

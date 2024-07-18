@@ -4,6 +4,7 @@ import CommonStore from "./commonStore";
 import UserStore from "./userStore";
 import ModalStore from "./modalStore";
 import ProfileStore from "./profileStore";
+import CommentStore from "./commentStore";
 
 interface Store { // 69. setting up MobX
     activityStore: ActivityStore
@@ -11,6 +12,7 @@ interface Store { // 69. setting up MobX
     userStore: UserStore;
     modalStore: ModalStore;
     profileStore: ProfileStore; // 195.
+    commentStore: CommentStore // 215. 
 }
 
 export const store: Store = {
@@ -18,7 +20,8 @@ export const store: Store = {
     commonStore: new CommonStore(),
     userStore: new UserStore(),
     modalStore: new ModalStore(),
-    profileStore: new ProfileStore() // 195.
+    profileStore: new ProfileStore(), // 195.
+    commentStore: new CommentStore() // 215.
 }
 
 export const StoreContext = createContext(store);

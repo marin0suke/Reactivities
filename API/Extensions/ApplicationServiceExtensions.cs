@@ -23,7 +23,11 @@ namespace API.Extensions
             services.AddCors(opt => {
                 opt.AddPolicy("CorsPolicy", policy =>
                 {
-                policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
+                    policy
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials() // 216. will resolve issue with connecting to client hub. signalR requires explicit allowing of sending up credentials (unlike API autho headers)
+                        .WithOrigins("http://localhost:3000"); // NOTE:: changed this to 5000 to match API things.. might need to change this back. 
                 });
             });
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(List.Handler).Assembly));
@@ -34,6 +38,7 @@ namespace API.Extensions
             services.AddScoped<IUserAccessor, UserAccessor>(); // 158. will make these avaiable to be injected inside our application handlers. 
             services.AddScoped<IPhotoAccessor, PhotoAccessor>(); // 180. adding cloudinary interfaces.
             services.Configure<CloudinarySettings>(config.GetSection("Cloudinary")); // 179. adding cloudinary.
+            services.AddSignalR(); // 213 adding a signalR hub.
 
             
             return services;

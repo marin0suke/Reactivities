@@ -13,6 +13,8 @@ namespace Persistence
          public DbSet<Activity> Activities { get; set; }
          public DbSet<ActivityAttendee> ActivityAttendees { get; set; }
          public DbSet<Photo> Photos { get; set; } // 182. adding photo entity.
+         public DbSet<Comment> Comments { get; set; } // 209. we want to add a new dbset prop for this since we want to query the comments directly. and we aren't going to return with out activity.
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -29,6 +31,11 @@ namespace Persistence
                 .HasOne(u => u.Activity)
                 .WithMany(a => a.Attendees)
                 .HasForeignKey(aa => aa.ActivityId);
+
+            builder.Entity<Comment>() // 209.
+                .HasOne(a => a.Activity) // one link with activity
+                .WithMany(c => c.Comments) // 
+                .OnDelete(DeleteBehavior.Cascade); // if del act, will cascade down to delete to comm assc. with act.
         }
     }
 }

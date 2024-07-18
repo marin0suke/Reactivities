@@ -12,12 +12,13 @@ import ActivityDetailedSidebar from "./ActivityDetailedSidebar";
 export default observer(function ActivityDetails() {
 
     const {activityStore} = useStore(); // 73. 
-    const {selectedActivity: activity, loadActivity, loadingInitial} = activityStore; // 73.  83. removed cancelSelected and openForm (deleted functions since grabbing individual using react router)
+    const {selectedActivity: activity, loadActivity, loadingInitial, clearSelectedActivity} = activityStore; // 73.  83. removed cancelSelected and openForm (deleted functions since grabbing individual using react router)
     const {id} = useParams();
 
     useEffect(() => {
         if (id) loadActivity(id);
-    }, [id, loadActivity])
+        return () => clearSelectedActivity(); // adding this to clean up after ourselves. previous act won't be in memory. this also needs to be added in the dependencies.
+    }, [id, loadActivity, clearSelectedActivity])
 
     // 84. using route parameters - added state to observe inside activityStore 
 
@@ -29,7 +30,7 @@ export default observer(function ActivityDetails() {
             <Grid.Column width={10}>
                 <ActivityDetailedHeader activity={activity}/>
                 <ActivityDetailedInfo activity={activity} />
-                <ActivityDetailedChat />
+                <ActivityDetailedChat activityId={activity.id}/>
             </Grid.Column>
             <Grid.Column width={6}>
                 <ActivityDetailedSidebar activity={activity}/>
@@ -43,3 +44,4 @@ export default observer(function ActivityDetails() {
 // 95. deleted the card component and replaced with Grid and the new components.
 // 170. updating details view component - adding attendees props to activityDetailedSidebar. 
 // 172. conditional rendering of buttons - changed prop passed to ActivityDetailedSidebar to activity instead of attendees.
+// 216. after adding comments to client in activitydetailedchat, added activityid prop.

@@ -1,4 +1,5 @@
 using Application.Activities;
+using Application.Comments;
 using AutoMapper;
 using Domain;
 
@@ -19,6 +20,10 @@ namespace Application.Core
                 .ForMember(d => d.Image, o => o.MapFrom(s => s.AppUser.Photos.FirstOrDefault(x => x.IsMain).Url));
             CreateMap<AppUser, Profiles.Profile>()
                 .ForMember(d => d.Image, o => o.MapFrom(s => s.Photos.FirstOrDefault(x => x.IsMain).Url));
+            CreateMap<Comment, CommentDto>()
+                .ForMember(d => d.DisplayName, o => o.MapFrom(s => s.Author.DisplayName))
+                .ForMember(d => d.Username, o => o.MapFrom(s => s.Author.UserName))
+                .ForMember(d => d.Image, o => o.MapFrom(s => s.Author.Photos.FirstOrDefault(x => x.IsMain).Url));
         }
     }
 }
@@ -27,3 +32,5 @@ namespace Application.Core
 // 163. we needed a new map, bc our activitydto has an attendees prop, and what we need to map - is from our ActivityAttendee to our Profile obj. 
 // 188. 
 // 189. added grabbing image for map between ActivityAttendee and AttendeeDto.
+
+// 210. adding comment dto and mapping. copy pasted ForMembers from activityattendee to attendeedto. del bio portion. 

@@ -197,5 +197,7 @@ export default class ActivityStore { // 69. setting up MobX
         }
     }
 
-
+    clearSelectedActivity = () => { // 219. adding this so when we switch between activities, we remove the previous to stop getting disconnection error. (minor - still works. same as react strict mode odd flow useEffect error with signalR)
+        this.selectedActivity = undefined;
+    }
 }
