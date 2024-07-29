@@ -1,10 +1,10 @@
 using Application.Core;
+using Application.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Persistence;
 
 namespace Application.Activities
@@ -17,15 +17,18 @@ namespace Application.Activities
         {
             private readonly DataContext _context;
             private readonly IMapper _mapper;
-            public Handler(DataContext context, IMapper mapper) // 162. added IMapper. (turning activity entity to activity dto here)
+        private readonly IUserAccessor _userAccessor;
+            public Handler(DataContext context, IMapper mapper, IUserAccessor userAccessor) // 162. added IMapper. (turning activity entity to activity dto here)
             {
+            _userAccessor = userAccessor;
             _mapper = mapper;
                 _context = context;    
             }
             public async Task<Result<List<ActivityDto>>> Handle(Query request, CancellationToken token) // 105. here too
             {
                 var activities = await _context.Activities
-                    .ProjectTo<ActivityDto>(_mapper.ConfigurationProvider) // 163. replaced Include with ProjectTo. (switching from eager loading).
+                    .ProjectTo<ActivityDto>(_mapper.ConfigurationProvider, 
+                        new {currentUsername = _userAccessor.GetUsername()}) // 228. updated (more info below) // 163. replaced Include with ProjectTo. (switching from eager loading).
                     .ToListAsync(); // 161. loading related data - eagerly loading (use of include method) to get our attendee data (from the join table)
 
                 return Result<List<ActivityDto>>.Success(activities); // 105. instead of returning the  // 161. returned activities inside Success method.
@@ -41,3 +44,6 @@ namespace Application.Activities
 // we will use automapper extension that allows us to project to an entity or a class.
 // when using projection, no need to eagerly load out related data. 
 // ALSO ProjectTo means the var activities becomes an ActivityDto, so we no longer need to add mapping function and can return activities directly.
+
+// 228. added IUserAccessor to get Username, so we can appropriately change props according to username.
+// we have currentUsername string in MappingProfiles and we are defining it here through UserAccessor. through ProjectTo second parameter.

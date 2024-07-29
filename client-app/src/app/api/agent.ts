@@ -99,7 +99,10 @@ const Profiles = { // 207. edit handler challenge.
     },
     setMainPhoto: (id: string) => requests.post(`/photos/${id}/setMain`, {}), // 204. method to set main photo.
     deletePhoto: (id: string) => requests.del(`/photos/${id}`), // 204. method to delete photo. 
-    updateProfile: (profile: Partial<Profile>) => requests.put(`/profiles`, profile) // 207. challenge. new request to edit profile. partial bc only displayname and bio.
+    updateProfile: (profile: Partial<Profile>) => requests.put(`/profiles`, profile), // 207. challenge. new request to edit profile. partial bc only displayname and bio.
+    updateFollowing: (username: string) => requests.post(`/follow/${username}`, {}), // 230. adding method to follow and unfollow. 
+    listFollowings: (username: string, predicate: string) => 
+        requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`) // 232. getting a list of followings.
 }
 
 // 195. create obj that we can use to go and get user profile. 

@@ -2,6 +2,7 @@ import { observer } from "mobx-react-lite";
 import { Link } from "react-router-dom";
 import { Card, CardContent, Icon, Image } from "semantic-ui-react";
 import { Profile } from "../../app/models/profile";
+import FollowButton from "./FollowButton";
 
 interface Props {
     profile: Profile;
@@ -23,8 +24,9 @@ export default  observer(function ProfileCard({profile}: Props) {
             </CardContent>
             <Card.Content extra>
                 <Icon name="user" />
-                20 followers
+                {profile.followersCount} followers
             </Card.Content>
+            <FollowButton profile={profile} />
         </Card>
     )
 })
@@ -34,3 +36,7 @@ export default  observer(function ProfileCard({profile}: Props) {
 // section 18 challenge - added profile.bio in bio card.description
 // also added truncate function and added it to card description.
 
+// 229. added dynamic prop for followers count.
+
+// 231. we're adding the follow button on the card too, but the card is also a link. we don't want to trigger the link as well as follow at the same time.
+// so we will use prevent default to stop this from happnening. preventdefault is built into the button comp. then button is added her just under the card. 

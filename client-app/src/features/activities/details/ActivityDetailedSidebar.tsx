@@ -39,7 +39,8 @@ export default observer(function ActivityDetailedSidebar ({activity: {attendees,
                              <Item.Header as='h3'>
                                  <Link to={`/profiles/${attendee.username}`}>{attendee.displayName}</Link>
                              </Item.Header>
-                             <Item.Extra style={{ color: 'orange' }}>Following</Item.Extra>
+                             {attendee.following &&
+                             <Item.Extra style={{ color: 'orange' }}>Following</Item.Extra>}
                          </Item.Content>
                      </Item>
                     ))}
@@ -53,3 +54,5 @@ export default observer(function ActivityDetailedSidebar ({activity: {attendees,
 
 // 171. updating the details component - adding {attendees.length} {attendees.length === 1 ? "Person" : "People"} going - after the first segment.
 // loop over attendees array: attendee.map in the next segment (list), ignore host info for now. 
+
+// 229. added attendee.following && conditional to Item.Extra with following badge.

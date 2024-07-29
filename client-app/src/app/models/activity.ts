@@ -13,7 +13,7 @@ export interface IActivity {
     isGoing: boolean; // 172.
     isHost: boolean; // 172. 
     host?: Profile; // 172.
-    attendees?: Profile[];
+    attendees: Profile[];
   }
 
   export class Activity implements IActivity { // 174. new class that will populate the activities. scaffold? 
@@ -40,7 +40,7 @@ export interface IActivity {
     isGoing: boolean = false; 
     isHost: boolean = false;
     host?: Profile; 
-    attendees?: Profile[]; // 174. had to set iniital values and match IActivity interface above to abide by linting rules. 
+    attendees: Profile[] = []; // 174. had to set iniital values and match IActivity interface above to abide by linting rules. 
   }
 
   export class ActivityFormValues { // 174.

@@ -10,6 +10,11 @@ interface Props {
 
 
 export default observer(function ActivityListItemAttendee({attendees}: Props) {
+    const styles = {
+        borderColor: "orange",
+        borderWidth: 2
+    }
+
     return (
         <List horizontal>
             {attendees.map(attendee => (
@@ -18,7 +23,12 @@ export default observer(function ActivityListItemAttendee({attendees}: Props) {
                     key={attendee.username}
                     trigger={
                         <List.Item key={attendee.username} as={Link} to={`/profiles/${attendee.username}`}>
-                            <Image size="mini" circular src={attendee.image || "/assets/user.png"} />
+                            <Image 
+                                size="mini" 
+                                circular src={attendee.image || "/assets/user.png"} 
+                                bordered
+                                style={attendee.following ? styles : null}
+                            />
                         </List.Item>
                     }
                 >
@@ -38,3 +48,5 @@ export default observer(function ActivityListItemAttendee({attendees}: Props) {
 
 // 170. added Profile props to get info we need to show attendee info. 
 // 175. adding popup card for attendees - added Popup from semantic, put ListItem as trigger. added the ProfileCard we created as the popup content. added attendee as prop within this comp. 
+
+// 229. added styles const before return statement. border and orange - and added conditional style to image.

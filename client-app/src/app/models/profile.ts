@@ -5,6 +5,9 @@ export interface IProfile {
     displayName : string;
     image?: string;
     bio?: string;
+    followersCount: number; // 229.
+    followingCount: number; // 229.
+    following: boolean; // 229.
     photos?: Photo[] // 195. 
 }
 
@@ -21,6 +24,9 @@ export class Profile implements IProfile {
     displayName : string;
     image?: string;
     bio?: string;
+    followersCount = 0; // 229. linting update - to keep ts happy we need to have the new props within the class with initial values.
+    followingCount = 0; // 229.
+    following = false; // 229.
     photos?: Photo[] // 195. also has to be added here bc linting issues. 
 }
 
