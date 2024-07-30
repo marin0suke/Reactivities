@@ -1,4 +1,5 @@
 using Application.Activities;
+using Application.Core;
 using Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,9 +10,9 @@ namespace API.Controllers
     public class ActivitiesController : BaseApiController
     {
         [HttpGet] //api/activities
-        public async Task<IActionResult> GetActivities() // 105. change to IActionRsult - no need to specify type information
+        public async Task<IActionResult> GetActivities([FromQuery]ActivityParams param) // 243. changed to ActivityParams (after changes make in List.cs activities) 237. add FromQuery attribute. 105. change to IActionRsult - no need to specify type information
         {
-            return HandleResult(await Mediator.Send(new List.Query())); // 105. instead of returning directly, we call the function and pass in the request to MediatR.
+            return HandlePagedResult(await Mediator.Send(new List.Query{Params = param})); // 238. update to handlePagedResult (new in baseapicontroller) 237. update Query() with Params = param. 105. instead of returning directly, we call the function and pass in the request to MediatR.
         }
 
 

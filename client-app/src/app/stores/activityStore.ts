@@ -1,10 +1,11 @@
-import { makeAutoObservable, runInAction } from "mobx";
+import { makeAutoObservable, reaction, runInAction } from "mobx";
 import { Activity, ActivityFormValues } from "../models/activity";
 import agent from "../api/agent";
 import {v4 as uuid} from 'uuid';
 import { format } from "date-fns";
 import { store } from "./store";
 import { Profile } from "../models/profile";
+import { Pagination, PagingParams } from "../models/pagination";
 
 export default class ActivityStore { // 69. setting up MobX
     // activities: Activity[] = []; 76. no longer needed - array. using map obj instead
@@ -14,9 +15,65 @@ export default class ActivityStore { // 69. setting up MobX
     editMode: boolean = false; // 71. refactoring - EDITED AGAIN SEE BELOW:(had to add undefined here and for loading so the error went away)
     loading: boolean = false; // EDIT - this was false | undefined but changed to boolean - so it can be changed to true.
     loadingInitial = false; // 76. to get rid of flickering(but mine was ok before this change)
+    pagination: Pagination | null = null; // 239. added.
+    pagingParams = new PagingParams(); //  240. adding pagination parameters.
+    predicate = new Map().set("all", true); // 244. client side filtering. add new prop. easier to manage by mkaing it a map. set inital prop for all our activities so we can highlight which is selected by default. 
 
     constructor() {
         makeAutoObservable(this) //70. this was makeObservable, changed to auto in this lesson (this is a separate thing to import) which allowed to take out properties that are now inherently observable
+
+        reaction( // 244. good time to use reaction - when the predicate changed BUT not set the first time - we want something to happen - 
+            () => this.predicate.keys(), // we want to observe the keys - ar they going to change?
+            () => {
+                this.pagingParams = new PagingParams(); // 
+                this.activityRegistry.clear();
+                this.loadActivities(); // taking axios params. and load next batch. 
+            }
+        )
+    }
+    
+    setPagingParams = (pagingParams: PagingParams) => { // 240. adding pagination parameters. we want to be able to send these along with our request as a query string. 
+        this.pagingParams = pagingParams;
+    }
+
+    setPredicate = (predicate: string, value: string | Date) => { // 244. method to set the predicate.
+        const resetPredicate = () => {
+            this.predicate.forEach((value, key) => {
+                if (key !== "startDate") this.predicate.delete(key); // if key is not start date (ie if the user selects another date) then we reset the filter by deleting the key in the predicate.
+            })
+        }
+        switch (predicate) {
+            case "all": // 244. we want user to select filters one at a time. we also want to retain the date while able to filter. 
+                resetPredicate();
+                this.predicate.set("all", true); // 
+                break;
+            case "isGoing" :
+                resetPredicate();
+                this.predicate.set("isGoing", true);
+                break;
+            case "isHost" :
+                resetPredicate();
+                this.predicate.set("isHost", true);
+                break;
+            case "startDate" :
+                this.predicate.delete("startDate"); // 244. deleting bc of the way we will react to changes in the predicate. if we just set the value, then will not trigger the change detection to update what we are going to when the pred changes.  
+                this.predicate.set("startDate", value);
+
+        }
+    }
+
+    get axiosParams() { // 240. adding pagination parameters. 
+        const params = new URLSearchParams();
+        params.append("pageNumber", this.pagingParams.pageNumber.toString()); // we can add query string parameters in this obj and pass this obj to axios.
+        params.append("pageSize", this.pagingParams.pageSize.toString()); // 
+        this.predicate.forEach((value, key) => {
+            if (key === "startDate") { //  if key is startdate
+                params.append(key, (value as Date).toISOString()); // then append it to params as a string.
+            } else {
+                params.append(key, value); // if not startdate, going to be a normal filter. so append normally. 
+            }
+        }) // 244. check what's inside out predicate and loop over the keys inside there. 
+        return params;
     }
 
     get activitiesByDate() { //76. using map obj. uses map obj method.. now we have a computed property that will sort the activities in date order
@@ -43,11 +100,13 @@ export default class ActivityStore { // 69. setting up MobX
         this.setLoadingInitial(true); // 84. have to set this back to true since after we load a single activity, it is set to false. so we don't get the loading indictor when returning to the full activities page
         // this.setLoadingInitial(true); // SOLVING after 71. was missing this line. silly. 76. to solve flickering 
          try {
-            const activities = await agent.Activities.list();
+            const result = await agent.Activities.list(this.axiosParams); // 240. pass in this.axiosParams. 239. this list now expects to return a type of paginatedResult of type activity[].
                 runInAction(() => { 
-                    activities.forEach(activity => {
+                    result.data.forEach(activity => { // 239. forEach has to be on activity array directly. so need to specify data within the paginatedResult here.
                         this.setActivity(activity); // 83. using private function now
                     });
+                    this.setPagination(result.pagination); // 239. we have pagination data inside data now. so can pass into setPagination. 
+                    this.setLoadingInitial(false); // 239. turn off loading indicator. 
                 });
                 this.setLoadingInitial(false);
 
@@ -55,6 +114,10 @@ export default class ActivityStore { // 69. setting up MobX
             console.log(error);
             this.setLoadingInitial(false);
         }
+    }
+
+    setPagination = (pagination: Pagination) => { // 239. helper method.
+        this.pagination = pagination;
     }
 
     // 83. getting an individual activity. we want to check if activity is inside Registry. if it isn't we need to get it from API

@@ -5,6 +5,7 @@ import { router } from "../router/Routes";
 import { store } from "../stores/store";
 import { User, UserFormValues } from "../models/user";
 import { Photo, Profile } from "../models/profile";
+import { PaginatedResult } from "../models/pagination";
 
 const sleep = (delay: number) => { // 63. adding loading indicators. 
     return new Promise((resolve) => {
@@ -24,8 +25,13 @@ axios.interceptors.request.use(config => {
 
 // 151. sending the token up with the request. added request interceptor from axios.
 
-axios.interceptors.response.use(async response => { // 63. adding loading indicators. 
+axios.interceptors.response.use(async response => { // 239. adding client side pagination. 63. adding loading indicators. 
     await sleep(1000);
+    const pagination = response.headers["pagination"]; // 239. need this to be in where we get the response. response is going to contain a pagination header. so we go grab the pagination prop here.
+    if (pagination) { // check we get it successfully.
+        response.data = new PaginatedResult(response.data, JSON.parse(pagination)); // grabs data from response and parses from JSON to obj with props in pagination.ts. 
+        return response as AxiosResponse<PaginatedResult<unknown>> //type safety with Axios response.bc when we use this response, defining type will give us intellisense. 
+    }
     return response; 
 }, (error: AxiosError) => {
     const {data, status, config} = error.response as AxiosResponse;
@@ -73,7 +79,8 @@ const requests = { // 61. obj to store requests from axios. 62. type safety sinc
 }
 
 const Activities = { // 61. set up obj to store our requests for our activities
-    list: () => requests.get<Activity[]>('/activities'), // 61. first a request to list the activity. pass in the URL of the activity ('/') will be the baseURL + whatever we put inside the request. in this case, just activities.
+    list: (params: URLSearchParams) => axios.get<PaginatedResult<Activity[]>>('/activities', {params}) // 240. added type params, changed request to axios, added {params} and added .then since axios and not request.
+        .then(responseBody), // 239. updating to paginatedresult of type activity[]. 61. first a request to list the activity. pass in the URL of the activity ('/') will be the baseURL + whatever we put inside the request. in this case, just activities.
     details: (id: string) => requests.get<Activity>(`/activities/${id}`),
     create: (activity: ActivityFormValues) => requests.post<void>('/activities', activity), // 174. updated to ActivityFormValues.
     update: (activity: ActivityFormValues) => requests.put<void>(`/activities/${activity.id}`, activity), // 174. updated to ActivityFormValues.
