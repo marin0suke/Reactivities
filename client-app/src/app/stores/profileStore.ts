@@ -1,5 +1,5 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
-import { Photo, Profile } from "../models/profile";
+import { Photo, Profile, UserActivity } from "../models/profile";
 import agent from "../api/agent";
 import { store } from "./store";
 
@@ -11,6 +11,8 @@ export default class ProfileStore {
     followings: Profile[] = []; // 230. added. 
     loadingFollowings = false; // 232. added to use specifically to load followings. so not too many loading inicators at the same time.
     activeTab = 0; // 233. using MobX reactions.
+    userActivities: UserActivity[] = []; // 248. adding type safety with this object.
+    loadingActivities = false; // 248. 
 
     constructor() {
         makeAutoObservable(this);
@@ -167,6 +169,22 @@ export default class ProfileStore {
         } catch (error) {
             console.log(error);
             runInAction(() => this.loadingFollowings = false);
+        }
+    }
+
+    loadUserActivities = async (username: string, predicate?: string) => { // 248. add method in profileStore to load user events (to go in event tab at least initially).
+        this.loadingActivities = true;
+        try {
+            const activities = await agent.Profiles.listActivities(username, predicate!); // call the listActivities (request) method in the agent.ts file.
+            runInAction(() => {
+                this.userActivities = activities; // changes observable state via MobX. 
+                this.loadingActivities = false; // turn loading indicator off.
+            })
+        } catch (error) {
+            console.log(error);
+            runInAction(() => {
+                this.loadingActivities = false; 
+            })
         }
     }
 }

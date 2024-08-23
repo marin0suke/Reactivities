@@ -1,10 +1,11 @@
-import { Tab, TabPane } from "semantic-ui-react";
+import { Tab } from "semantic-ui-react";
 import ProfilePhotos from "./ProfilePhotos";
 import { Profile } from "../../app/models/profile";
 import { observer } from "mobx-react-lite";
 import ProfileAbout from "./ProfileAbout";
 import ProfileFollowings from "./ProfileFollowings";
 import { useStore } from "../../app/stores/store";
+import ProfileActivities from "./ProfileActivities";
 
 interface Props {
     profile: Profile;
@@ -16,7 +17,7 @@ export default observer(function ProfileContent({profile}: Props) {
     const panes = [
         {menuItem: 'About', render: () => <ProfileAbout />}, // section 18 challenge - added ProfileAbout here.
         {menuItem: 'Photos', render: () => <ProfilePhotos profile={profile} />}, // 197. replaced TabPane with comp with TabPane already in it.
-        {menuItem: 'Events', render: () => <TabPane>Events Content</TabPane>},
+        {menuItem: 'Events', render: () => <ProfileActivities />}, // 248. new comp added here.
         {menuItem: 'Followers', render: () => <ProfileFollowings />}, // 232. getting a list of followings - added profile followings component.
         {menuItem: 'Following', render: () => <ProfileFollowings />}, // 232. added profile followings component.
     ];

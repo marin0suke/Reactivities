@@ -19,6 +19,14 @@ namespace API.Controllers
         {
             return HandleResult(await Mediator.Send(command)); // Send command - mediator. sends the command to the Handler. 
         }
+
+        [HttpGet("{username}/activities")] // 247. endpoint for user profile activities. // WAS GETTING 404 in postman bc hadn't added endpoint specifics here. (username/activities)
+
+        public async Task<IActionResult> GetUserActivities(string username, string predicate)
+        {
+            return HandleResult(await Mediator.Send(new ListActivities.Query
+                {Username = username, Predicate = predicate}));
+        }
         
     }
 }
@@ -26,4 +34,5 @@ namespace API.Controllers
 // 187. returning user profiles. 
 // 188. tried to test in postman to get Profile, but had an ambiguous reference error for Details. 
 // since we have details handler in activities in application too. so added using statement at top to specify details from profiles. 
-// 
+
+// 247. add an endpoint here so the client can send a get request to ""/api/profiles/{username}/activities?predicate="thePredicate".

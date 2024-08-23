@@ -41,3 +41,11 @@ export interface Photo {
 }
 
 // 195. adding profile data. added Photo interface.
+
+export interface UserActivity { 
+    id: string;
+    title: string;
+    category: string;
+    date: Date;
+} // 248. adding type UserActivity to set what we want to get back from the API. properties match what we want.
+// we then go ahead and use this in the agent file to give us some type safety when we go ahead with that request.

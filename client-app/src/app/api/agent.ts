@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { router } from "../router/Routes";
 import { store } from "../stores/store";
 import { User, UserFormValues } from "../models/user";
-import { Photo, Profile } from "../models/profile";
+import { Photo, Profile, UserActivity } from "../models/profile";
 import { PaginatedResult } from "../models/pagination";
 
 const sleep = (delay: number) => { // 63. adding loading indicators. 
@@ -109,7 +109,9 @@ const Profiles = { // 207. edit handler challenge.
     updateProfile: (profile: Partial<Profile>) => requests.put(`/profiles`, profile), // 207. challenge. new request to edit profile. partial bc only displayname and bio.
     updateFollowing: (username: string) => requests.post(`/follow/${username}`, {}), // 230. adding method to follow and unfollow. 
     listFollowings: (username: string, predicate: string) => 
-        requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`) // 232. getting a list of followings.
+        requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`), // 232. getting a list of followings.
+    listActivities: (username: string, predicate: string) => // 248. adding events to profile. first bit of client side after api is connected.
+        requests.get<UserActivity[]>(`/profiles/${username}/activities?predicate=${predicate}`) // returning a useractivity type from this request.
 }
 
 // 195. create obj that we can use to go and get user profile. 
